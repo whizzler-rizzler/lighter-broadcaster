@@ -24,15 +24,12 @@ main.py           - Application entry point
 
 - **REST API Polling**: Polls Lighter accounts at configurable intervals (default: 0.5s)
 - **Active Orders Polling**: Fetches active orders for each account every 2 seconds
-- **WebSocket Client**: Attempts real-time updates from Lighter.xyz with graceful fallback
+- **WebSocket Client**: Real-time updates from Lighter.xyz via proxy (using aiohttp-socks)
 - **Caching**: In-memory cache with configurable TTL
 - **REST API**: Serves cached account data with rate limiting
 - **WebSocket Broadcasting**: Pushes updates to connected clients
 - **Status Dashboard**: Visual display of connections, positions, and orders
-
-## Known Limitations
-
-- **WebSocket Connectivity**: Lighter.xyz WebSocket may return HTTP 400 from certain geographic locations. The service gracefully falls back to REST API polling which provides the same data with ~0.5s latency.
+- **Proxy Support**: Both REST API and WebSocket connections use configured proxies
 
 ## API Endpoints
 

@@ -8,3 +8,4 @@ pydantic>=2.0.0
 lighter-sdk>=1.0.0
 websocket-client
 python-socks[asyncio]
+aiohttp-socks

@@ -3,7 +3,8 @@ import logging
 import json
 import time
 from typing import Optional, Callable, List, Any, Dict
-import websockets
+import aiohttp
+from aiohttp_socks import ProxyConnector
 import lighter
 from src.config import settings
 
@@ -17,6 +18,7 @@ class LighterWebSocketClient:
         self._connected = False
         self._signer_clients: Dict[str, lighter.SignerClient] = {}
         self._ws = None
+        self._session = None
     
     def set_signer_clients(self, signer_clients: Dict[str, lighter.SignerClient]):
         self._signer_clients = signer_clients
@@ -60,69 +62,86 @@ class LighterWebSocketClient:
     
     async def connect(self):
         retry_count = 0
-        max_retries = 3
+        max_retries = 5
         
         while self.running:
             try:
                 account_ids = [acc.account_index for acc in settings.accounts]
                 ws_url = settings.lighter_ws_url
+                proxy_url = self._get_proxy_url()
                 
                 auth_token = self._generate_auth_token()
                 
-                if auth_token:
-                    logger.info(f"Connecting to WebSocket: {ws_url} with auth token for accounts: {account_ids}")
-                else:
-                    logger.info(f"Connecting to WebSocket: {ws_url} (no auth) for accounts: {account_ids}")
-                
-                extra_headers = {
-                    "User-Agent": "LighterBroadcaster/1.0",
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                     "Origin": "https://lighter.xyz"
                 }
                 if auth_token:
-                    extra_headers["Authorization"] = f"Bearer {auth_token}"
+                    headers["Authorization"] = f"Bearer {auth_token}"
                 
-                async with websockets.connect(
+                if proxy_url:
+                    logger.info(f"Connecting to WebSocket via proxy: {proxy_url[:30]}...")
+                    connector = ProxyConnector.from_url(proxy_url)
+                    self._session = aiohttp.ClientSession(connector=connector)
+                else:
+                    logger.info(f"Connecting to WebSocket directly (no proxy)")
+                    self._session = aiohttp.ClientSession()
+                
+                logger.info(f"WebSocket URL: {ws_url}, accounts: {account_ids}")
+                
+                async with self._session.ws_connect(
                     ws_url,
-                    additional_headers=extra_headers,
-                    ping_interval=30,
-                    ping_timeout=10,
-                    close_timeout=5
-                ) as websocket:
-                    self._ws = websocket
+                    headers=headers,
+                    heartbeat=30,
+                    timeout=aiohttp.ClientWSTimeout(ws_close=10)
+                ) as ws:
+                    self._ws = ws
                     self._connected = True
                     retry_count = 0
-                    logger.info("WebSocket connected successfully")
+                    logger.info("WebSocket connected successfully via proxy!")
                     
                     for account_id in account_ids:
                         subscribe_msg = {
                             "type": "subscribe",
                             "channel": f"account_all/{account_id}"
                         }
-                        await websocket.send(json.dumps(subscribe_msg))
+                        await ws.send_json(subscribe_msg)
                         logger.info(f"Subscribed to account_all/{account_id}")
                     
-                    async for message in websocket:
-                        try:
-                            data = json.loads(message)
-                            logger.debug(f"WS received: {data}")
-                            await self._notify_callbacks(data)
-                        except json.JSONDecodeError:
-                            logger.warning(f"Invalid JSON from WebSocket: {message}")
-                        except Exception as e:
-                            logger.error(f"Error processing WS message: {e}")
+                    async for msg in ws:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            try:
+                                data = json.loads(msg.data)
+                                logger.debug(f"WS received: {data}")
+                                await self._notify_callbacks(data)
+                            except json.JSONDecodeError:
+                                logger.warning(f"Invalid JSON from WebSocket: {msg.data}")
+                            except Exception as e:
+                                logger.error(f"Error processing WS message: {e}")
+                        elif msg.type == aiohttp.WSMsgType.ERROR:
+                            logger.error(f"WebSocket error: {ws.exception()}")
+                            break
+                        elif msg.type == aiohttp.WSMsgType.CLOSED:
+                            logger.warning("WebSocket closed by server")
+                            break
                 
-            except websockets.exceptions.ConnectionClosed as e:
-                logger.warning(f"WebSocket connection closed: {e}")
+            except aiohttp.ClientError as e:
+                retry_count += 1
+                logger.warning(f"WebSocket connection error (attempt {retry_count}/{max_retries}): {e}")
                 self._connected = False
             except Exception as e:
                 retry_count += 1
                 logger.warning(f"WebSocket error (attempt {retry_count}/{max_retries}): {e}")
                 self._connected = False
-                
-                if retry_count >= max_retries:
-                    logger.warning("WebSocket unavailable after max retries. REST API polling will continue to provide data updates.")
-                    self.running = False
-                    return
+            finally:
+                if self._session and not self._session.closed:
+                    await self._session.close()
+                    self._session = None
+            
+            if retry_count >= max_retries:
+                logger.warning("WebSocket unavailable after max retries. REST API polling will continue.")
+                self.running = False
+                return
             
             if self.running:
                 wait_time = min(5 * retry_count, 30)
@@ -132,6 +151,11 @@ class LighterWebSocketClient:
     async def start(self):
         self.running = True
         if settings.accounts:
+            proxy_url = self._get_proxy_url()
+            if proxy_url:
+                logger.info(f"WebSocket client starting with proxy support")
+            else:
+                logger.info(f"WebSocket client starting without proxy")
             self._task = asyncio.create_task(self.connect())
         else:
             logger.warning("No accounts configured, WebSocket client not started")
@@ -144,6 +168,8 @@ class LighterWebSocketClient:
                 await self._ws.close()
             except Exception:
                 pass
+        if self._session and not self._session.closed:
+            await self._session.close()
         if self._task:
             self._task.cancel()
             try:
