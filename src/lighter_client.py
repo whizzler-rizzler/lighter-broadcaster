@@ -32,23 +32,48 @@ class LighterClient:
             self._http_sessions[account_name] = aiohttp.ClientSession(connector=connector)
         return self._http_sessions[account_name]
     
+    def _get_auth_token(self, account_name: str) -> Optional[str]:
+        signer = self.signer_clients.get(account_name)
+        if not signer:
+            return None
+        try:
+            auth_token, err = signer.create_auth_token_with_expiry(
+                lighter.SignerClient.DEFAULT_10_MIN_AUTH_EXPIRY
+            )
+            if err:
+                logger.error(f"Auth token error for {account_name}: {err}")
+                return None
+            return auth_token
+        except Exception as e:
+            logger.error(f"Failed to create auth token for {account_name}: {e}")
+            return None
+    
     async def fetch_active_orders(self, account_name: str, account_index: int, market_id: int) -> List[Dict[str, Any]]:
         try:
+            auth_token = self._get_auth_token(account_name)
+            if not auth_token:
+                return []
+            
             session = await self._get_http_session_for_account(account_name)
             url = f"{settings.lighter_base_url}/api/v1/accountActiveOrders"
             params = {"account_index": account_index, "market_id": market_id}
+            headers = {"Authorization": auth_token}
             
             proxy = self._account_proxies.get(account_name)
             
-            async with session.get(url, params=params, proxy=proxy) as resp:
+            async with session.get(url, params=params, headers=headers, proxy=proxy) as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    return data.get("orders", [])
+                    orders = data.get("orders", [])
+                    if orders:
+                        logger.debug(f"Fetched {len(orders)} orders for {account_name} market {market_id}")
+                    return orders
                 elif resp.status == 429:
                     logger.warning(f"Rate limited (429) for account {account_name} market {market_id}")
                     return []
-                elif resp.status != 400:
-                    logger.warning(f"Active orders request failed for market {market_id}: {resp.status}")
+                else:
+                    body = await resp.text()
+                    logger.warning(f"Active orders request failed for {account_name} market {market_id}: {resp.status} - {body[:200]}")
                 return []
         except Exception as e:
             logger.error(f"Error fetching active orders for {account_index}: {e}")
