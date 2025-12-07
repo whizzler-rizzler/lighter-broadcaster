@@ -264,7 +264,17 @@ async def get_portfolio():
                         volume_24h += size * price
             
             ws_volumes = ws_trades.get("volumes", {}) if ws_trades else {}
-            ws_trades_list = ws_trades.get("trades", {}) if ws_trades else {}
+            ws_trades_raw = ws_trades.get("trades", {}) if ws_trades else {}
+            
+            if isinstance(ws_trades_raw, dict):
+                ws_trades_list = []
+                for market_trades in ws_trades_raw.values():
+                    if isinstance(market_trades, list):
+                        ws_trades_list.extend(market_trades)
+            else:
+                ws_trades_list = ws_trades_raw if isinstance(ws_trades_raw, list) else []
+            
+            all_trades = ws_trades_list if ws_trades_list else trades
             
             account_entry = {
                 "account_index": str(account_data.get("account_index", "")),
@@ -282,8 +292,7 @@ async def get_portfolio():
                 "weekly_volume": ws_volumes.get("weekly_volume"),
                 "positions": positions,
                 "active_orders": active_orders,
-                "trades": trades,
-                "ws_trades": ws_trades_list
+                "trades": all_trades
             }
             accounts_list.append(account_entry)
             
@@ -292,7 +301,7 @@ async def get_portfolio():
             total_margin_used += margin_used
             total_positions += len(positions)
             total_active_orders += len(active_orders)
-            total_trades += len(trades)
+            total_trades += len(all_trades)
     
     return {
         "accounts": accounts_list,
