@@ -204,7 +204,16 @@ async def get_portfolio():
             ws_orders_key = f"ws_orders:{account_index}"
             ws_orders_entry = cached_data.get(ws_orders_key, {})
             ws_orders_inner = ws_orders_entry.get("data", ws_orders_entry) if ws_orders_entry else {}
-            ws_orders = ws_orders_inner.get("orders", []) if isinstance(ws_orders_inner, dict) else []
+            ws_orders_raw = ws_orders_inner.get("orders", []) if isinstance(ws_orders_inner, dict) else []
+            
+            if isinstance(ws_orders_raw, dict):
+                ws_orders = []
+                for market_orders in ws_orders_raw.values():
+                    if isinstance(market_orders, list):
+                        ws_orders.extend(market_orders)
+            else:
+                ws_orders = ws_orders_raw if isinstance(ws_orders_raw, list) else []
+            
             active_orders = ws_orders if ws_orders else (account_data.get("active_orders", []) or [])
             
             ws_trades_key = f"ws_trades:{account_index}"
