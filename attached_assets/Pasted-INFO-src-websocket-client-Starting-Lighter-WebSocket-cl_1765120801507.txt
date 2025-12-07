@@ -1,0 +1,51 @@
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:36110 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.209.20.134:36108 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:44944 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:44948 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:46402 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:46418 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:43490 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:43508 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.209.20.134:43492 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:34012 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:34014 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:40222 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+INFO:     10.209.20.134:40238 - "GET /health HTTP/1.1" 200 OK
+INFO:src.websocket_client:Starting Lighter WebSocket client for accounts: [634023, 191948, 363202, 382129, 397776, 497888, 634023, 637317, 199339, 199374]
+INFO:     10.209.20.134:60120 - "GET /health HTTP/1.1" 200 OK
+ERROR:src.websocket_client:WebSocket error: LighterWebSocketClient._on_account_update() takes 2 positional arguments but 3 were given
+INFO:src.websocket_client:Reconnecting WebSocket in 5 seconds...
+Need better ways to work with logs? Try theRender CLI, Render MCP Server, or set up a log stream integration 
