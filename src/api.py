@@ -374,6 +374,164 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(f"WebSocket error: {e}")
         await manager.disconnect(websocket)
 
+@app.get("/api/ws/positions")
+@limiter.limit(settings.rate_limit)
+async def get_ws_positions(request: Request):
+    """Get all positions from WebSocket cache for all accounts"""
+    cached_data = await cache.get_all()
+    result = []
+    
+    for key, value in cached_data.items():
+        if key.startswith("ws_positions:"):
+            account_id = key.replace("ws_positions:", "")
+            data = value.get("data", value)
+            positions = data.get("positions", [])
+            timestamp = data.get("timestamp", 0)
+            result.append({
+                "account_index": account_id,
+                "positions": positions,
+                "timestamp": timestamp,
+                "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+            })
+    
+    return {"accounts": result, "total_accounts": len(result)}
+
+
+@app.get("/api/ws/positions/{account_index}")
+@limiter.limit(settings.rate_limit)
+async def get_ws_positions_by_account(request: Request, account_index: int):
+    """Get positions from WebSocket cache for specific account"""
+    cached = await cache.get(f"ws_positions:{account_index}")
+    if not cached:
+        raise HTTPException(status_code=404, detail=f"No positions data for account {account_index}")
+    
+    data = cached.get("data", cached)
+    positions = data.get("positions", [])
+    timestamp = data.get("timestamp", 0)
+    
+    return {
+        "account_index": account_index,
+        "positions": positions,
+        "timestamp": timestamp,
+        "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+    }
+
+
+@app.get("/api/ws/orders")
+@limiter.limit(settings.rate_limit)
+async def get_ws_orders(request: Request):
+    """Get all orders from WebSocket cache for all accounts"""
+    cached_data = await cache.get_all()
+    result = []
+    
+    for key, value in cached_data.items():
+        if key.startswith("ws_orders:"):
+            account_id = key.replace("ws_orders:", "")
+            data = value.get("data", value)
+            orders = data.get("orders", [])
+            timestamp = data.get("timestamp", 0)
+            result.append({
+                "account_index": account_id,
+                "orders": orders,
+                "orders_count": len(orders),
+                "timestamp": timestamp,
+                "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+            })
+    
+    return {"accounts": result, "total_accounts": len(result)}
+
+
+@app.get("/api/ws/orders/{account_index}")
+@limiter.limit(settings.rate_limit)
+async def get_ws_orders_by_account(request: Request, account_index: int):
+    """Get orders from WebSocket cache for specific account"""
+    cached = await cache.get(f"ws_orders:{account_index}")
+    if not cached:
+        raise HTTPException(status_code=404, detail=f"No orders data for account {account_index}")
+    
+    data = cached.get("data", cached)
+    orders = data.get("orders", [])
+    timestamp = data.get("timestamp", 0)
+    
+    return {
+        "account_index": account_index,
+        "orders": orders,
+        "orders_count": len(orders),
+        "timestamp": timestamp,
+        "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+    }
+
+
+@app.get("/api/ws/trades")
+@limiter.limit(settings.rate_limit)
+async def get_ws_trades(request: Request):
+    """Get all trades from WebSocket cache for all accounts"""
+    cached_data = await cache.get_all()
+    result = []
+    
+    for key, value in cached_data.items():
+        if key.startswith("ws_trades:"):
+            account_id = key.replace("ws_trades:", "")
+            data = value.get("data", value)
+            trades_raw = data.get("trades", {})
+            volumes = data.get("volumes", {})
+            timestamp = data.get("timestamp", 0)
+            
+            if isinstance(trades_raw, dict):
+                trades = trades_raw
+                total_trades = sum(len(t) for t in trades_raw.values() if isinstance(t, list))
+            elif isinstance(trades_raw, list):
+                trades = trades_raw
+                total_trades = len(trades_raw)
+            else:
+                trades = {}
+                total_trades = 0
+            
+            result.append({
+                "account_index": account_id,
+                "trades": trades,
+                "trades_count": total_trades,
+                "volumes": volumes,
+                "timestamp": timestamp,
+                "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+            })
+    
+    return {"accounts": result, "total_accounts": len(result)}
+
+
+@app.get("/api/ws/trades/{account_index}")
+@limiter.limit(settings.rate_limit)
+async def get_ws_trades_by_account(request: Request, account_index: int):
+    """Get trades from WebSocket cache for specific account"""
+    cached = await cache.get(f"ws_trades:{account_index}")
+    if not cached:
+        raise HTTPException(status_code=404, detail=f"No trades data for account {account_index}")
+    
+    data = cached.get("data", cached)
+    trades_raw = data.get("trades", {})
+    volumes = data.get("volumes", {})
+    timestamp = data.get("timestamp", 0)
+    
+    if isinstance(trades_raw, dict):
+        trades = trades_raw
+        total_trades = sum(len(t) for t in trades_raw.values() if isinstance(t, list))
+    elif isinstance(trades_raw, list):
+        trades = trades_raw
+        total_trades = len(trades_raw)
+    else:
+        trades = {}
+        total_trades = 0
+    
+    return {
+        "account_index": account_index,
+        "trades": trades,
+        "trades_count": total_trades,
+        "volumes": volumes,
+        "timestamp": timestamp,
+        "age_seconds": round(time.time() - timestamp, 2) if timestamp else None
+    }
+
+
 @app.get("/", response_class=HTMLResponse)
 async def dashboard():
     return """
