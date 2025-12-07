@@ -52,7 +52,16 @@ class LighterWebSocketClient:
                 logger.error(f"Failed to generate auth token: {e}")
         return None
     
+    def _get_proxy_url(self) -> Optional[str]:
+        for acc in settings.accounts:
+            if acc.proxy_url:
+                return acc.proxy_url
+        return None
+    
     async def connect(self):
+        retry_count = 0
+        max_retries = 3
+        
         while self.running:
             try:
                 account_ids = [acc.account_index for acc in settings.accounts]
@@ -60,23 +69,37 @@ class LighterWebSocketClient:
                 
                 auth_token = self._generate_auth_token()
                 
-                logger.info(f"Connecting to WebSocket: {ws_url} for accounts: {account_ids}")
+                if auth_token:
+                    logger.info(f"Connecting to WebSocket: {ws_url} with auth token for accounts: {account_ids}")
+                else:
+                    logger.info(f"Connecting to WebSocket: {ws_url} (no auth) for accounts: {account_ids}")
                 
-                async with websockets.connect(ws_url) as websocket:
+                extra_headers = {
+                    "User-Agent": "LighterBroadcaster/1.0",
+                    "Origin": "https://lighter.xyz"
+                }
+                if auth_token:
+                    extra_headers["Authorization"] = f"Bearer {auth_token}"
+                
+                async with websockets.connect(
+                    ws_url,
+                    additional_headers=extra_headers,
+                    ping_interval=30,
+                    ping_timeout=10,
+                    close_timeout=5
+                ) as websocket:
                     self._ws = websocket
                     self._connected = True
+                    retry_count = 0
                     logger.info("WebSocket connected successfully")
                     
                     for account_id in account_ids:
                         subscribe_msg = {
                             "type": "subscribe",
-                            "channel": "account",
-                            "account_index": account_id
+                            "channel": f"account_all/{account_id}"
                         }
-                        if auth_token:
-                            subscribe_msg["auth_token"] = auth_token
                         await websocket.send(json.dumps(subscribe_msg))
-                        logger.info(f"Subscribed to account {account_id}")
+                        logger.info(f"Subscribed to account_all/{account_id}")
                     
                     async for message in websocket:
                         try:
@@ -92,12 +115,19 @@ class LighterWebSocketClient:
                 logger.warning(f"WebSocket connection closed: {e}")
                 self._connected = False
             except Exception as e:
-                logger.error(f"WebSocket error: {e}")
+                retry_count += 1
+                logger.warning(f"WebSocket error (attempt {retry_count}/{max_retries}): {e}")
                 self._connected = False
+                
+                if retry_count >= max_retries:
+                    logger.warning("WebSocket unavailable after max retries. REST API polling will continue to provide data updates.")
+                    self.running = False
+                    return
             
             if self.running:
-                logger.info("Reconnecting WebSocket in 5 seconds...")
-                await asyncio.sleep(5)
+                wait_time = min(5 * retry_count, 30)
+                logger.info(f"Reconnecting WebSocket in {wait_time} seconds...")
+                await asyncio.sleep(wait_time)
     
     async def start(self):
         self.running = True

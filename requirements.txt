@@ -6,3 +6,5 @@ python-dotenv>=1.0.0
 slowapi>=0.1.9
 pydantic>=2.0.0
 lighter-sdk>=1.0.0
+websocket-client
+python-socks[asyncio]
