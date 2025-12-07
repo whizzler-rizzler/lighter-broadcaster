@@ -50,8 +50,9 @@ class LighterWebSocketClient:
         first_signer = next(iter(self._signer_clients.values()), None)
         if first_signer:
             try:
-                expiry = datetime.now() + timedelta(hours=8)
-                token = first_signer.create_auth_token_with_expiry(expiry)
+                import time
+                expiry_timestamp = int(time.time()) + (8 * 60 * 60)
+                token = first_signer.create_auth_token_with_expiry(expiry_timestamp)
                 logger.info("Generated WebSocket auth token")
                 return token
             except Exception as e:
@@ -65,23 +66,16 @@ class LighterWebSocketClient:
                 
                 host = settings.lighter_ws_url.replace("wss://", "").replace("/stream", "")
                 
-                auth_token = self._generate_auth_token()
+                self.ws_client = lighter.WsClient(
+                    host=host,
+                    path="/stream",
+                    account_ids=account_ids,
+                    order_book_ids=[],
+                    on_account_update=self._on_account_update,
+                    on_order_book_update=self._on_orderbook_update
+                )
                 
-                ws_kwargs = {
-                    "host": host,
-                    "path": "/stream",
-                    "account_ids": account_ids,
-                    "order_book_ids": [],
-                    "on_account_update": self._on_account_update,
-                    "on_order_book_update": self._on_orderbook_update
-                }
-                
-                if auth_token:
-                    ws_kwargs["auth_token"] = auth_token
-                
-                self.ws_client = lighter.WsClient(**ws_kwargs)
-                
-                logger.info(f"Starting Lighter WebSocket client for accounts: {account_ids} (auth: {'yes' if auth_token else 'no'})")
+                logger.info(f"Starting Lighter WebSocket client for accounts: {account_ids}")
                 self._connected = True
                 
                 await self.ws_client.run_async()

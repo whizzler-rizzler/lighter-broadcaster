@@ -79,7 +79,7 @@ class LighterClient:
             data = await self.fetch_account_data(account.name, account.account_index)
             if data:
                 results[str(account.account_index)] = data
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.5)
         return results
     
     async def start_polling(self):

@@ -112,6 +112,85 @@ async def get_status():
         "cache": cache_stats
     }
 
+@app.get("/api/portfolio")
+async def get_portfolio():
+    import time
+    cached_data = await cache.get_all()
+    accounts_list = []
+    
+    total_equity = 0
+    total_unrealized_pnl = 0
+    total_margin_used = 0
+    total_positions = 0
+    total_open_orders = 0
+    total_trades = 0
+    
+    for key, value in cached_data.items():
+        if key.startswith("account:"):
+            account_data = value.get("data", {})
+            raw_data = account_data.get("raw_data", {})
+            
+            equity = 0
+            available_balance = 0
+            unrealized_pnl = 0
+            margin_used = 0
+            margin_ratio = 0
+            positions = []
+            open_orders = []
+            trades = []
+            
+            if isinstance(raw_data, dict):
+                if "balances" in raw_data and raw_data["balances"]:
+                    balance = raw_data["balances"][0] if isinstance(raw_data["balances"], list) else raw_data["balances"]
+                    equity = float(balance.get("equity", 0) or 0)
+                    available_balance = float(balance.get("available_for_trade", 0) or 0)
+                    unrealized_pnl = float(balance.get("unrealised_pnl", 0) or 0)
+                    margin_used = float(balance.get("initial_margin", 0) or 0)
+                    margin_ratio = float(balance.get("margin_ratio", 0) or 0)
+                
+                positions = raw_data.get("positions", []) or []
+                open_orders = raw_data.get("open_orders", []) or []
+                trades = raw_data.get("trades", []) or []
+            
+            account_entry = {
+                "account_index": str(account_data.get("account_index", "")),
+                "name": account_data.get("account_name", ""),
+                "ws_connected": ws_client.is_connected,
+                "last_update": int(time.time()),
+                "last_disconnect_reason": None,
+                "equity": equity,
+                "available_balance": available_balance,
+                "unrealized_pnl": unrealized_pnl,
+                "margin_used": margin_used,
+                "margin_ratio": margin_ratio,
+                "positions": positions,
+                "open_orders": open_orders,
+                "trades": trades
+            }
+            accounts_list.append(account_entry)
+            
+            total_equity += equity
+            total_unrealized_pnl += unrealized_pnl
+            total_margin_used += margin_used
+            total_positions += len(positions)
+            total_open_orders += len(open_orders)
+            total_trades += len(trades)
+    
+    return {
+        "accounts": accounts_list,
+        "aggregated": {
+            "total_equity": total_equity,
+            "total_unrealized_pnl": total_unrealized_pnl,
+            "total_margin_used": total_margin_used,
+            "total_positions": total_positions,
+            "total_open_orders": total_open_orders,
+            "total_trades": total_trades,
+            "accounts_connected": len([a for a in accounts_list if a["ws_connected"]]),
+            "accounts_total": len(settings.accounts)
+        },
+        "timestamp": int(time.time())
+    }
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
