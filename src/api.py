@@ -96,7 +96,7 @@ async def startup():
                     "trades": trades,
                     "volumes": volumes,
                     "timestamp": time.time()
-                }, ttl=120)
+                }, ttl=3600)
             except (ValueError, TypeError):
                 pass
         
@@ -1022,6 +1022,9 @@ Example:
                 const equity = parseFloat(acc.equity) || 0;
                 const pnl = parseFloat(acc.unrealized_pnl) || 0;
                 const volume24h = parseFloat(acc.volume_24h) || 0;
+                const weeklyVolume = parseFloat(acc.weekly_volume) || 0;
+                const monthlyVolume = parseFloat(acc.monthly_volume) || 0;
+                const totalVolume = parseFloat(acc.total_volume) || 0;
                 const positions = acc.positions || [];
                 const activeOrders = acc.active_orders || [];
                 const trades = acc.trades || [];
@@ -1106,12 +1109,17 @@ Example:
                 html += '      <div class="stat-value ' + pnlClass + '">' + formatMoney(pnl) + '</div>';
                 html += '    </div>';
                 html += '    <div class="stat-item">';
-                html += '      <div class="stat-label">Volume 24H</div>';
-                html += '      <div class="stat-value">' + formatMoney(volume24h) + '</div>';
-                html += '    </div>';
-                html += '    <div class="stat-item">';
                 html += '      <div class="stat-label">Active Orders</div>';
                 html += '      <div class="stat-value">' + activeOrders.length + '</div>';
+                html += '    </div>';
+                html += '  </div>';
+                html += '  <div class="positions-section">';
+                html += '    <div class="positions-header">Wolumeny</div>';
+                html += '    <div class="account-stats" style="margin-top:8px;">';
+                html += '      <div class="stat-item"><div class="stat-label">24H</div><div class="stat-value">' + formatMoney(volume24h) + '</div></div>';
+                html += '      <div class="stat-item"><div class="stat-label">7D</div><div class="stat-value">' + formatMoney(weeklyVolume) + '</div></div>';
+                html += '      <div class="stat-item"><div class="stat-label">30D</div><div class="stat-value">' + formatMoney(monthlyVolume) + '</div></div>';
+                html += '      <div class="stat-item"><div class="stat-label">Total</div><div class="stat-value">' + formatMoney(totalVolume) + '</div></div>';
                 html += '    </div>';
                 html += '  </div>';
                 const openPositionsCount = positions.filter(p => parseFloat(p.position || p.signed_size || p.size || 0) !== 0).length;
