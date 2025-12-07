@@ -62,11 +62,10 @@ async def startup():
                 await cache.set(f"ws_orders:{account_id}", {
                     "orders": orders,
                     "timestamp": time.time()
-                })
-                if orders:
-                    logger.debug(f"Cached {len(orders)} orders for account {account_id}")
-            except (ValueError, TypeError):
-                pass
+                }, ttl=120)
+                logger.info(f"Cached {len(orders)} orders for account {account_id}")
+            except (ValueError, TypeError) as e:
+                logger.error(f"Failed to parse orders channel {channel}: {e}")
         
         elif "account_all_positions" in channel:
             parts = channel.replace("account_all_positions:", "").replace("account_all_positions/", "")
@@ -76,7 +75,7 @@ async def startup():
                 await cache.set(f"ws_positions:{account_id}", {
                     "positions": positions,
                     "timestamp": time.time()
-                })
+                }, ttl=120)
                 if positions:
                     logger.debug(f"Cached {len(positions)} positions for account {account_id}")
             except (ValueError, TypeError):
@@ -97,7 +96,7 @@ async def startup():
                     "trades": trades,
                     "volumes": volumes,
                     "timestamp": time.time()
-                })
+                }, ttl=120)
             except (ValueError, TypeError):
                 pass
         
@@ -202,12 +201,15 @@ async def get_portfolio():
             raw_data = account_data.get("raw_data", {})
             account_index = account_data.get("account_index")
             
-            ws_orders_data = cached_data.get(f"ws_orders:{account_index}", {})
-            ws_orders = ws_orders_data.get("data", ws_orders_data).get("orders", []) if ws_orders_data else []
+            ws_orders_key = f"ws_orders:{account_index}"
+            ws_orders_entry = cached_data.get(ws_orders_key, {})
+            ws_orders_inner = ws_orders_entry.get("data", ws_orders_entry) if ws_orders_entry else {}
+            ws_orders = ws_orders_inner.get("orders", []) if isinstance(ws_orders_inner, dict) else []
             active_orders = ws_orders if ws_orders else (account_data.get("active_orders", []) or [])
             
-            ws_trades_data = cached_data.get(f"ws_trades:{account_index}", {})
-            ws_trades = ws_trades_data.get("data", ws_trades_data) if ws_trades_data else {}
+            ws_trades_key = f"ws_trades:{account_index}"
+            ws_trades_entry = cached_data.get(ws_trades_key, {})
+            ws_trades = ws_trades_entry.get("data", ws_trades_entry) if ws_trades_entry else {}
             
             last_update = account_data.get("last_update", 0)
             

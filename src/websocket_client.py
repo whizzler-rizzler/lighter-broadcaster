@@ -144,7 +144,13 @@ class LighterWebSocketClient:
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             try:
                                 data = json.loads(msg.data)
-                                logger.debug(f"WS received: {data}")
+                                channel = data.get("channel", "")
+                                msg_type = data.get("type", "")
+                                if "orders" in channel or "positions" in channel or "trades" in channel:
+                                    orders_count = len(data.get("orders", []))
+                                    positions_count = len(data.get("positions", []))
+                                    trades_count = len(data.get("trades", {}))
+                                    logger.info(f"WS [{msg_type}] {channel} - orders:{orders_count} pos:{positions_count} trades:{trades_count}")
                                 await self._notify_callbacks(data)
                             except json.JSONDecodeError:
                                 logger.warning(f"Invalid JSON from WebSocket: {msg.data}")
