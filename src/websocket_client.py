@@ -31,13 +31,13 @@ class LighterWebSocketClient:
             except Exception as e:
                 logger.error(f"Callback error: {e}")
     
-    def _on_account_update(self, data: Any):
-        logger.debug(f"Account update received: {data}")
-        asyncio.create_task(self._notify_callbacks({"type": "account_update", "data": data}))
+    def _on_account_update(self, account_id: Any, data: Any):
+        logger.debug(f"Account update received for {account_id}: {data}")
+        asyncio.create_task(self._notify_callbacks({"type": "account_update", "account_id": account_id, "data": data}))
     
-    def _on_orderbook_update(self, data: Any):
-        logger.debug(f"Orderbook update received: {data}")
-        asyncio.create_task(self._notify_callbacks({"type": "orderbook_update", "data": data}))
+    def _on_orderbook_update(self, orderbook_id: Any, data: Any):
+        logger.debug(f"Orderbook update received for {orderbook_id}: {data}")
+        asyncio.create_task(self._notify_callbacks({"type": "orderbook_update", "orderbook_id": orderbook_id, "data": data}))
     
     async def connect(self):
         while self.running:
