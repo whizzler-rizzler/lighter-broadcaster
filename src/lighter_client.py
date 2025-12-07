@@ -81,17 +81,15 @@ class LighterClient:
     
     async def fetch_all_active_orders(self, account_name: str, account_index: int, position_markets: List[int] = None) -> List[Dict[str, Any]]:
         all_orders = []
-        main_markets = {1, 2, 3}
         
-        if position_markets:
-            markets_to_check = main_markets.union(set(position_markets))
-        else:
-            markets_to_check = main_markets
+        if not position_markets:
+            self._cached_orders[account_index] = []
+            self.last_orders_update[account_index] = time.time()
+            return []
         
-        for market_id in sorted(markets_to_check):
+        for market_id in position_markets:
             orders = await self.fetch_active_orders(account_name, account_index, market_id)
             all_orders.extend(orders)
-            await asyncio.sleep(0.15)
         
         self._cached_orders[account_index] = all_orders
         self.last_orders_update[account_index] = time.time()
