@@ -168,7 +168,7 @@ class LighterClient:
                 acc_list = raw_data.get("accounts", [])
                 if acc_list:
                     positions = acc_list[0].get("positions", [])
-                    return [int(pos.get("market_id", 0)) for pos in positions if float(pos.get("signed_size", 0) or 0) != 0]
+                    return [int(pos.get("market_id", 0)) for pos in positions if float(pos.get("position", 0) or pos.get("signed_size", 0) or 0) != 0]
         except Exception:
             pass
         return []

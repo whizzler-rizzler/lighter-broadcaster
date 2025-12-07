@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import json
+import time
 from typing import Optional, Callable, List, Any, Dict
-from datetime import datetime, timedelta
+import websockets
 import lighter
 from src.config import settings
 
@@ -9,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 class LighterWebSocketClient:
     def __init__(self):
-        self.ws_client: Optional[lighter.WsClient] = None
         self.running = False
         self._task: Optional[asyncio.Task] = None
         self._callbacks: List[Callable] = []
         self._connected = False
         self._signer_clients: Dict[str, lighter.SignerClient] = {}
+        self._ws = None
     
     def set_signer_clients(self, signer_clients: Dict[str, lighter.SignerClient]):
         self._signer_clients = signer_clients
@@ -36,21 +38,12 @@ class LighterWebSocketClient:
             except Exception as e:
                 logger.error(f"Callback error: {e}")
     
-    def _on_account_update(self, account_id: Any, data: Any):
-        logger.debug(f"Account update received for {account_id}: {data}")
-        asyncio.create_task(self._notify_callbacks({"type": "account_update", "account_id": account_id, "data": data}))
-    
-    def _on_orderbook_update(self, orderbook_id: Any, data: Any):
-        logger.debug(f"Orderbook update received for {orderbook_id}: {data}")
-        asyncio.create_task(self._notify_callbacks({"type": "orderbook_update", "orderbook_id": orderbook_id, "data": data}))
-    
     def _generate_auth_token(self) -> Optional[str]:
         if not self._signer_clients:
             return None
         first_signer = next(iter(self._signer_clients.values()), None)
         if first_signer:
             try:
-                import time
                 expiry_timestamp = int(time.time()) + (8 * 60 * 60)
                 token = first_signer.create_auth_token_with_expiry(expiry_timestamp)
                 logger.info("Generated WebSocket auth token")
@@ -63,23 +56,41 @@ class LighterWebSocketClient:
         while self.running:
             try:
                 account_ids = [acc.account_index for acc in settings.accounts]
+                ws_url = settings.lighter_ws_url
                 
-                host = settings.lighter_ws_url.replace("wss://", "").replace("/stream", "")
+                auth_token = self._generate_auth_token()
                 
-                self.ws_client = lighter.WsClient(
-                    host=host,
-                    path="/stream",
-                    account_ids=account_ids,
-                    order_book_ids=[],
-                    on_account_update=self._on_account_update,
-                    on_order_book_update=self._on_orderbook_update
-                )
+                logger.info(f"Connecting to WebSocket: {ws_url} for accounts: {account_ids}")
                 
-                logger.info(f"Starting Lighter WebSocket client for accounts: {account_ids}")
-                self._connected = True
+                async with websockets.connect(ws_url) as websocket:
+                    self._ws = websocket
+                    self._connected = True
+                    logger.info("WebSocket connected successfully")
+                    
+                    for account_id in account_ids:
+                        subscribe_msg = {
+                            "type": "subscribe",
+                            "channel": "account",
+                            "account_index": account_id
+                        }
+                        if auth_token:
+                            subscribe_msg["auth_token"] = auth_token
+                        await websocket.send(json.dumps(subscribe_msg))
+                        logger.info(f"Subscribed to account {account_id}")
+                    
+                    async for message in websocket:
+                        try:
+                            data = json.loads(message)
+                            logger.debug(f"WS received: {data}")
+                            await self._notify_callbacks(data)
+                        except json.JSONDecodeError:
+                            logger.warning(f"Invalid JSON from WebSocket: {message}")
+                        except Exception as e:
+                            logger.error(f"Error processing WS message: {e}")
                 
-                await self.ws_client.run_async()
-                
+            except websockets.exceptions.ConnectionClosed as e:
+                logger.warning(f"WebSocket connection closed: {e}")
+                self._connected = False
             except Exception as e:
                 logger.error(f"WebSocket error: {e}")
                 self._connected = False
@@ -98,6 +109,11 @@ class LighterWebSocketClient:
     async def stop(self):
         self.running = False
         self._connected = False
+        if self._ws:
+            try:
+                await self._ws.close()
+            except Exception:
+                pass
         if self._task:
             self._task.cancel()
             try:

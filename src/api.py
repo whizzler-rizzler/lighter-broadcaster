@@ -814,7 +814,7 @@ Example:
         
         fetchPortfolio();
         fetchApiSamples();
-        setInterval(fetchPortfolio, 2000);
+        setInterval(fetchPortfolio, 500);
         setInterval(fetchApiSamples, 5000);
     </script>
 </body>
