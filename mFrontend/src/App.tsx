@@ -95,30 +95,38 @@ function App() {
           {latency ? (
             <div className="timing-grid">
               <div className="timing-item">
-                <span className="timing-label">REST Poll Latency</span>
-                <span className="timing-value">{latency.rest_poll_latency_ms?.toFixed(0) || '-'} ms</span>
+                <span className="timing-label">REST Poll Avg</span>
+                <span className="timing-value">{latency.rest.interval_avg?.toFixed(0) || '-'} ms</span>
               </div>
               <div className="timing-item">
-                <span className="timing-label">Last Balance Update</span>
-                <span className="timing-value">{latency.last_balance_update || '-'}</span>
+                <span className="timing-label">Balance Age</span>
+                <span className="timing-value">{latency.backend_polling.balance_age?.toFixed(0) || '-'} ms</span>
               </div>
               <div className="timing-item">
-                <span className="timing-label">Last Positions Update</span>
-                <span className="timing-value">{latency.last_positions_update || '-'}</span>
+                <span className="timing-label">Positions Age</span>
+                <span className="timing-value">{latency.backend_polling.positions_age?.toFixed(0) || '-'} ms</span>
               </div>
               <div className="timing-item">
-                <span className="timing-label">Last Orders Update</span>
-                <span className="timing-value">{latency.last_orders_update || '-'}</span>
+                <span className="timing-label">REST Requests</span>
+                <span className="timing-value">{latency.rest.request_count || 0}</span>
               </div>
               <div className="timing-item">
                 <span className="timing-label">WebSocket</span>
-                <span className={`timing-value ${latency.ws_connected ? 'connected' : 'disconnected'}`}>
-                  {latency.ws_connected ? 'Connected' : 'Disconnected'}
+                <span className={`timing-value ${latency.websocket.connected ? 'connected' : 'disconnected'}`}>
+                  {latency.websocket.connected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
               <div className="timing-item">
+                <span className="timing-label">Accounts Live</span>
+                <span className="timing-value">{latency.backend_polling.active_accounts || 0}/{latency.backend_polling.total_accounts || 0}</span>
+              </div>
+              <div className="timing-item">
+                <span className="timing-label">WS Uptime</span>
+                <span className="timing-value">{latency.websocket.connection_uptime?.toFixed(0) || '-'}s</span>
+              </div>
+              <div className="timing-item">
                 <span className="timing-label">Broadcast Clients</span>
-                <span className="timing-value">{latency.broadcast_clients || 0}</span>
+                <span className="timing-value">{latency.backend_polling.connected_clients || 0}</span>
               </div>
             </div>
           ) : (

@@ -15,14 +15,44 @@ export async function fetchWsHealth(): Promise<WsHealthData> {
 }
 
 export interface LatencyData {
-  rest_poll_latency_ms: number;
-  last_balance_update: string;
-  last_positions_update: string;
-  last_orders_update: string;
-  ws_connected: boolean;
-  accounts_live: number;
-  accounts_total: number;
-  broadcast_clients: number;
+  frontend_polling: {
+    ws_interval_avg: number;
+    time_since_ws: number | null;
+    rest_interval_avg: number;
+    time_since_rest: number | null;
+    stats_poll_interval: number | null;
+    stats_fetch_time: number;
+  };
+  backend_polling: {
+    api_poll_rate: number;
+    positions_age: number;
+    balance_age: number;
+    active_accounts: number;
+    total_accounts: number;
+    connected_clients: number;
+  };
+  websocket: {
+    connected: boolean;
+    message_count: number;
+    last_message_age: number | null;
+    connection_uptime: number;
+    interval_min: number;
+    interval_avg: number;
+    interval_max: number;
+  };
+  rest: {
+    request_count: number;
+    last_update: number;
+    interval_min: number;
+    interval_avg: number;
+    interval_max: number;
+  };
+  timestamps: {
+    ws: number | null;
+    rest: number | null;
+    stats: number | null;
+    now: number;
+  };
 }
 
 export async function fetchLatency(): Promise<LatencyData> {
