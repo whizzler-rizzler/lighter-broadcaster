@@ -19,6 +19,7 @@ from Backend.websocket_client import ws_client
 from Backend.websocket_server import manager
 from Backend.latency import latency_tracker
 from Backend.supabase_client import supabase_client
+from Backend.error_collector import error_collector
 
 logger = logging.getLogger(__name__)
 
@@ -673,6 +674,26 @@ async def get_supabase_status(request: Request):
         "initialized": supabase_client.is_initialized,
         "persistence_enabled": supabase_client.is_initialized
     }
+
+
+@app.get("/api/errors")
+@limiter.limit(settings.rate_limit)
+async def get_errors(request: Request, limit: int = 50, source: str = None):
+    """Get recent errors and error summary"""
+    errors = error_collector.get_recent_errors(limit=limit, source=source)
+    summary = error_collector.get_error_summary()
+    return {
+        "errors": errors,
+        "summary": summary
+    }
+
+
+@app.post("/api/errors/clear")
+@limiter.limit("5/minute")
+async def clear_errors(request: Request):
+    """Clear error log"""
+    error_collector.clear()
+    return {"success": True, "message": "Error log cleared"}
 
 
 if FRONTEND_DIR.exists():

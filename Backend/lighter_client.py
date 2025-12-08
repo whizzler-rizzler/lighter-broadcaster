@@ -9,6 +9,7 @@ from Backend.config import AccountConfig, settings
 from Backend.cache import cache
 from Backend.latency import latency_tracker
 from Backend.supabase_client import supabase_client
+from Backend.error_collector import error_collector
 
 logger = logging.getLogger(__name__)
 
@@ -194,19 +195,23 @@ class LighterClient:
                     return orders
                 elif resp.status == 429:
                     rest_conn.record_failure("Rate limited (429)")
+                    error_collector.add_error(account_index, account_name, "429", "Too Many Requests", "rest", 429)
                     logger.warning(f"Rate limited (429) for account {account_name} market {market_id}")
                     return []
                 else:
                     body = await resp.text()
                     rest_conn.record_failure(f"HTTP {resp.status}")
+                    error_collector.add_error(account_index, account_name, f"HTTP_{resp.status}", body[:100], "rest", resp.status)
                     logger.warning(f"Active orders request failed for {account_name} market {market_id}: {resp.status} - {body[:200]}")
                 return []
         except asyncio.TimeoutError:
             rest_conn.record_failure("Timeout")
+            error_collector.add_error(account_index, account_name, "timeout", "Request timeout", "rest")
             logger.error(f"Timeout fetching active orders for {account_index}")
             return []
         except Exception as e:
             rest_conn.record_failure(str(e))
+            error_collector.add_error(account_index, account_name, "exception", str(e)[:100], "rest")
             logger.error(f"Error fetching active orders for {account_index}: {e}")
             return []
     
@@ -344,10 +349,15 @@ class LighterClient:
             
         except asyncio.TimeoutError:
             rest_conn.record_failure("Timeout")
+            error_collector.add_error(account_index, account_name, "timeout", "Account fetch timeout", "rest")
             logger.error(f"Timeout fetching account {account_index}")
             return None
         except Exception as e:
             rest_conn.record_failure(str(e))
+            error_msg = str(e)
+            error_type = "429" if "429" in error_msg else "exception"
+            error_code = 429 if "429" in error_msg else None
+            error_collector.add_error(account_index, account_name, error_type, error_msg[:100], "rest", error_code)
             logger.error(f"Error fetching account {account_index}: {e}")
             return None
     

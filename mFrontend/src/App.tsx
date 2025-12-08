@@ -1,28 +1,34 @@
 import { useState, useEffect } from 'react';
 import { AccountCard } from './components/AccountCard';
 import type { PortfolioData, WsHealthData, Position } from './types';
-import { fetchPortfolio, fetchWsHealth, fetchLatency, reconnectWs } from './api';
-import type { LatencyData } from './api';
+import { fetchPortfolio, fetchWsHealth, fetchLatency, reconnectWs, fetchRestHealth, fetchErrors, clearErrors, reconnectRest } from './api';
+import type { LatencyData, RestHealthData, ErrorsData } from './api';
 import { formatMoney, getPositionSymbol } from './utils';
 import './App.css';
 
 function App() {
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [wsHealth, setWsHealth] = useState<WsHealthData | null>(null);
+  const [restHealth, setRestHealth] = useState<RestHealthData | null>(null);
   const [latency, setLatency] = useState<LatencyData | null>(null);
+  const [errors, setErrors] = useState<ErrorsData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [portfolioData, healthData, latencyData] = await Promise.all([
+        const [portfolioData, healthData, restHealthData, latencyData, errorsData] = await Promise.all([
           fetchPortfolio(),
           fetchWsHealth().catch(() => null),
-          fetchLatency().catch(() => null)
+          fetchRestHealth().catch(() => null),
+          fetchLatency().catch(() => null),
+          fetchErrors().catch(() => null)
         ]);
         setPortfolio(portfolioData);
         setWsHealth(healthData);
+        setRestHealth(restHealthData);
         setLatency(latencyData);
+        setErrors(errorsData);
         setError(null);
       } catch (e) {
         setError('Failed to load portfolio');
@@ -51,11 +57,31 @@ function App() {
     });
   });
 
-  const handleReconnect = async (accountIndex?: number) => {
+  const handleReconnectWs = async (accountIndex?: number) => {
     try {
       await reconnectWs(accountIndex);
     } catch (e) {
       console.error('Reconnect failed:', e);
+    }
+  };
+
+  const handleReconnectRest = async (accountIndex?: number) => {
+    try {
+      await reconnectRest(accountIndex);
+      const restHealthData = await fetchRestHealth();
+      setRestHealth(restHealthData);
+    } catch (e) {
+      console.error('REST reconnect failed:', e);
+    }
+  };
+
+  const handleClearErrors = async () => {
+    try {
+      await clearErrors();
+      const errorsData = await fetchErrors();
+      setErrors(errorsData);
+    } catch (e) {
+      console.error('Clear errors failed:', e);
     }
   };
 
@@ -142,7 +168,7 @@ function App() {
                 <span>Connected: {wsHealth.connected_count}/{wsHealth.total_connections}</span>
                 <span>Messages: {wsHealth.total_messages_received}</span>
                 <span>Reconnects: {wsHealth.total_reconnect_attempts}</span>
-                <button className="reconnect-btn" onClick={() => handleReconnect()}>Reconnect All</button>
+                <button className="reconnect-btn" onClick={() => handleReconnectWs()}>Reconnect All</button>
               </div>
               <div className="ws-connections">
                 {wsHealth.connections.map(conn => (
@@ -163,6 +189,66 @@ function App() {
           )}
         </div>
 
+        <div className="section-panel">
+          <h2>REST API Connections</h2>
+          {restHealth ? (
+            <>
+              <div className="ws-summary">
+                <span>Connected: {restHealth.connected_count}/{restHealth.total_connections}</span>
+                <span>Requests: {restHealth.total_requests}</span>
+                <span>Success: {restHealth.success_rate}%</span>
+                <button className="reconnect-btn" onClick={() => handleReconnectRest()}>Reset All</button>
+              </div>
+              <div className="ws-connections">
+                {restHealth.connections.map(conn => (
+                  <div key={conn.account_id} className={`ws-conn ${conn.connected ? 'connected' : 'disconnected'}`}>
+                    <span className="ws-name">{conn.account_name}</span>
+                    <span className={`ws-status ${conn.connected ? 'online' : 'offline'}`}>
+                      {conn.connected ? 'OK' : 'OFF'}
+                    </span>
+                    <span className="ws-msg-age">{conn.success_rate}%</span>
+                    <span className="ws-msgs">{conn.total_requests} req</span>
+                    {conn.failed_requests > 0 && <span className="ws-error">{conn.failed_requests} fail</span>}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="no-data">Loading REST health...</div>
+          )}
+        </div>
+
+        <div className="section-panel error-panel">
+          <h2>Error Log {errors?.summary?.errors_last_5min ? <span className="error-badge">{errors.summary.errors_last_5min}</span> : null}</h2>
+          {errors ? (
+            <>
+              <div className="ws-summary">
+                <span>Last 1min: {errors.summary.errors_last_1min}</span>
+                <span>Last 5min: {errors.summary.errors_last_5min}</span>
+                <span>Total: {errors.summary.total_errors}</span>
+                <button className="reconnect-btn clear-btn" onClick={handleClearErrors}>Clear</button>
+              </div>
+              <div className="error-list">
+                {errors.errors.length > 0 ? (
+                  errors.errors.slice(0, 20).map((err, i) => (
+                    <div key={i} className={`error-item ${err.error_type === '429' ? 'rate-limit' : ''}`}>
+                      <span className="error-time">{err.time_str}</span>
+                      <span className="error-account">{err.account_name.replace('Lighter_', '').split('_')[0]}</span>
+                      <span className={`error-type ${err.source}`}>{err.error_type}</span>
+                      <span className="error-source">{err.source}</span>
+                      <span className="error-msg">{err.message}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-errors">No recent errors</div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="no-data">Loading errors...</div>
+          )}
+        </div>
+
         <div className="section-panel wide">
           <h2>Wszystkie Otwarte Pozycje ({allPositions.length})</h2>
           <div className="all-positions">
@@ -174,7 +260,7 @@ function App() {
                     <th>Symbol</th>
                     <th>Strona</th>
                     <th>Rozmiar</th>
-                    <th>Cena Wejścia</th>
+                    <th>Cena Wejscia</th>
                     <th>PnL</th>
                   </tr>
                 </thead>

@@ -7,6 +7,7 @@ import aiohttp
 from aiohttp_socks import ProxyConnector
 import lighter
 from Backend.config import settings, AccountConfig
+from Backend.error_collector import error_collector
 
 logger = logging.getLogger(__name__)
 
@@ -232,11 +233,19 @@ class AccountWebSocketConnection:
             except aiohttp.ClientError as e:
                 self._reconnect_count += 1
                 self._advance_retry_phase()
+                error_msg = str(e)
+                error_type = "429" if "429" in error_msg else "connection"
+                error_code = 429 if "429" in error_msg else None
+                error_collector.add_error(self.account.account_index, self.account.name, error_type, error_msg[:100], "websocket", error_code)
                 logger.warning(f"[{self.account.name}] WS connection error (phase {self._retry_phase}, attempt {self._phase_attempts}): {e}")
                 self._connected = False
             except Exception as e:
                 self._reconnect_count += 1
                 self._advance_retry_phase()
+                error_msg = str(e)
+                error_type = "429" if "429" in error_msg else "exception"
+                error_code = 429 if "429" in error_msg else None
+                error_collector.add_error(self.account.account_index, self.account.name, error_type, error_msg[:100], "websocket", error_code)
                 logger.warning(f"[{self.account.name}] WS error (phase {self._retry_phase}, attempt {self._phase_attempts}): {e}")
                 self._connected = False
             finally:
