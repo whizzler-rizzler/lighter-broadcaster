@@ -12,13 +12,13 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from src.config import settings
-from src.cache import cache
-from src.lighter_client import lighter_client
-from src.websocket_client import ws_client
-from src.websocket_server import manager
-from src.latency import latency_tracker
-from src.supabase_client import supabase_client
+from Backend.config import settings
+from Backend.cache import cache
+from Backend.lighter_client import lighter_client
+from Backend.websocket_client import ws_client
+from Backend.websocket_server import manager
+from Backend.latency import latency_tracker
+from Backend.supabase_client import supabase_client
 
 logger = logging.getLogger(__name__)
 

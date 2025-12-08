@@ -1,10 +1,10 @@
 import uvicorn
-from src.api import app
-from src.config import settings
+from Backend.api import app
+from Backend.config import settings
 
 if __name__ == "__main__":
     uvicorn.run(
-        "src.api:app",
+        "Backend.api:app",
         host=settings.host,
         port=settings.port,
         reload=False,

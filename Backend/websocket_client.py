@@ -6,7 +6,7 @@ from typing import Optional, Callable, List, Any, Dict
 import aiohttp
 from aiohttp_socks import ProxyConnector
 import lighter
-from src.config import settings, AccountConfig
+from Backend.config import settings, AccountConfig
 
 logger = logging.getLogger(__name__)
 

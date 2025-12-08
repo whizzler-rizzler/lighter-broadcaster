@@ -9,12 +9,13 @@ This service monitors Lighter.xyz accounts using REST API polling (2x per second
 ## Architecture
 
 ```
-src/
+Backend/
   __init__.py
   api.py              - FastAPI application with REST endpoints and WebSocket server
   cache.py            - In-memory caching layer with TTL support
   config.py           - Configuration and environment variable loading
   lighter_client.py   - Lighter SDK wrapper for REST API polling
+  latency.py          - Latency tracking utilities
   supabase_client.py  - Supabase integration for data persistence
   websocket_client.py - WebSocket client for real-time Lighter updates
   websocket_server.py - WebSocket server for broadcasting to clients
