@@ -79,16 +79,24 @@ class LighterClient:
             return []
     
     async def fetch_all_active_orders(self, account_name: str, account_index: int, position_markets: List[int] = None) -> List[Dict[str, Any]]:
-        all_orders = []
-        
+        """Fetch active orders for all markets in parallel"""
         if not position_markets:
             self._cached_orders[account_index] = []
             self.last_orders_update[account_index] = time.time()
             return []
         
-        for market_id in position_markets:
-            orders = await self.fetch_active_orders(account_name, account_index, market_id)
-            all_orders.extend(orders)
+        tasks = [
+            self.fetch_active_orders(account_name, account_index, market_id)
+            for market_id in position_markets
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        all_orders = []
+        for result in results:
+            if isinstance(result, Exception):
+                logger.error(f"Error fetching orders for account {account_index}: {result}")
+            elif result:
+                all_orders.extend(result)
         
         self._cached_orders[account_index] = all_orders
         self.last_orders_update[account_index] = time.time()
@@ -176,12 +184,19 @@ class LighterClient:
             return None
     
     async def fetch_all_accounts(self) -> Dict[str, Any]:
+        """Fetch all accounts in parallel using asyncio.gather"""
+        async def fetch_single(account):
+            return await self.fetch_account_data(account.name, account.account_index)
+        
+        tasks = [fetch_single(account) for account in settings.accounts]
+        results_list = await asyncio.gather(*tasks, return_exceptions=True)
+        
         results = {}
-        for account in settings.accounts:
-            data = await self.fetch_account_data(account.name, account.account_index)
-            if data:
+        for account, data in zip(settings.accounts, results_list):
+            if isinstance(data, Exception):
+                logger.error(f"Error fetching account {account.account_index}: {data}")
+            elif data:
                 results[str(account.account_index)] = data
-            await asyncio.sleep(0.3)
         return results
     
     def _get_position_markets(self, account_index: int) -> List[int]:
