@@ -1496,9 +1496,9 @@ Example:
         fetchPortfolio();
         fetchApiSamples();
         fetchLatency();
-        setInterval(fetchPortfolio, 500);
+        setInterval(fetchPortfolio, 100);
         setInterval(fetchApiSamples, 5000);
-        setInterval(fetchLatency, 2000);
+        setInterval(fetchLatency, 100);
     </script>
 </body>
 </html>
