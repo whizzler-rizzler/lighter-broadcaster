@@ -33,6 +33,7 @@ export interface Account {
   name: string;
   account_index: number;
   is_live: boolean;
+  last_update: number;
   equity?: string;
   unrealized_pnl?: string;
   volume_24h?: string;

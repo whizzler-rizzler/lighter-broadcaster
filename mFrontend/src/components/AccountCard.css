@@ -98,6 +98,7 @@
 
 .stat-value.positive { color: #00ff88; }
 .stat-value.negative { color: #ff4757; }
+.stat-value.stale { color: #ff9f43; }
 
 .section {
   border-top: 1px solid rgba(255,255,255,0.08);

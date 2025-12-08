@@ -13,6 +13,7 @@ export function AccountCard({ account }: Props) {
   const weeklyVolume = parseFloat(account.weekly_volume || '0');
   const monthlyVolume = parseFloat(account.monthly_volume || '0');
   const totalVolume = parseFloat(account.total_volume || '0');
+  const dataAge = account.last_update ? (Date.now() / 1000) - account.last_update : 0;
 
   const openPositions = account.positions.filter(p => {
     const size = parseFloat(p.position || p.signed_size || p.size || '0');
@@ -49,6 +50,12 @@ export function AccountCard({ account }: Props) {
         <div className="stat-item">
           <div className="stat-label">Active Orders</div>
           <div className="stat-value">{account.active_orders.length}</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-label">Data Age</div>
+          <div className={`stat-value ${dataAge > 5 ? 'stale' : ''}`}>
+            {dataAge.toFixed(1)}s
+          </div>
         </div>
       </div>
 
