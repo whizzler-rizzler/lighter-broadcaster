@@ -5,12 +5,13 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+import aiohttp
 
 from Backend.config import settings
 from Backend.cache import cache
@@ -31,6 +32,8 @@ def _get_exchange_for_account_id(account_id: int) -> str:
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Lighter Broadcaster", version="1.0.0")
+
+_proxy_session: aiohttp.ClientSession = None
 
 FRONTEND_DIR = Path(__file__).parent.parent / "mFrontend" / "dist"
 
@@ -55,15 +58,16 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 @app.on_event("startup")
 async def startup():
     logging.basicConfig(level=logging.INFO)
-    logger.info("Starting Lighter Broadcaster...")
+    logger.info(f"Starting Lighter Broadcaster in {settings.mode.value} mode...")
     
-    supabase_client.initialize()
-    if supabase_client.is_initialized:
-        logger.info("Supabase persistence enabled")
-    
-    await lighter_client.initialize(settings.accounts)
-    
-    asyncio.create_task(lighter_client.start_polling())
+    if settings.is_collector():
+        supabase_client.initialize()
+        if supabase_client.is_initialized:
+            logger.info("Supabase persistence enabled")
+        
+        await lighter_client.initialize(settings.accounts)
+        
+        asyncio.create_task(lighter_client.start_polling())
     
     async def on_ws_message(data):
         await manager.broadcast({"type": "lighter_update", "data": data})
@@ -164,17 +168,29 @@ async def startup():
         elif "account_index" in data:
             await cache.set(f"ws_update:{data['account_index']}", data)
     
-    ws_client.set_signer_clients(lighter_client.signer_clients)
-    ws_client.add_callback(on_ws_message)
-    await ws_client.start()
-    
-    logger.info(f"Broadcaster started with {len(settings.accounts)} accounts")
+    if settings.is_collector():
+        ws_client.set_signer_clients(lighter_client.signer_clients)
+        ws_client.add_callback(on_ws_message)
+        await ws_client.start()
+        logger.info(f"COLLECTOR mode: Started with {len(settings.accounts)} accounts")
+    else:
+        global _proxy_session
+        if settings.remote_api_base:
+            _proxy_session = aiohttp.ClientSession()
+            logger.info(f"FRONTEND_ONLY mode: Proxying to {settings.remote_api_base}")
+        else:
+            logger.warning("FRONTEND_ONLY mode: No REMOTE_API_BASE configured!")
 
 @app.on_event("shutdown")
 async def shutdown():
     logger.info("Shutting down Lighter Broadcaster...")
-    await ws_client.stop()
-    await lighter_client.close()
+    if settings.is_collector():
+        await ws_client.stop()
+        await lighter_client.close()
+    else:
+        global _proxy_session
+        if _proxy_session:
+            await _proxy_session.close()
 
 @app.get("/health")
 async def health_check():
@@ -701,6 +717,37 @@ async def clear_errors(request: Request):
     """Clear error log"""
     error_collector.clear()
     return {"success": True, "message": "Error log cleared"}
+
+
+async def proxy_request(path: str, request: Request) -> Response:
+    """Proxy API requests to remote backend in FRONTEND_ONLY mode"""
+    if not settings.remote_api_base:
+        raise HTTPException(status_code=503, detail="REMOTE_API_BASE not configured")
+    
+    if not _proxy_session:
+        raise HTTPException(status_code=503, detail="Proxy session not initialized")
+    
+    target_url = f"{settings.remote_api_base.rstrip('/')}/{path.lstrip('/')}"
+    
+    try:
+        async with _proxy_session.get(target_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+            content = await resp.read()
+            return Response(
+                content=content,
+                status_code=resp.status,
+                headers={"Content-Type": resp.headers.get("Content-Type", "application/json")}
+            )
+    except aiohttp.ClientError as e:
+        logger.error(f"Proxy error for {target_url}: {e}")
+        raise HTTPException(status_code=502, detail=f"Backend proxy error: {str(e)}")
+
+
+@app.get("/api/proxy/{path:path}")
+async def proxy_api(path: str, request: Request):
+    """Explicit proxy endpoint for frontend to call remote API"""
+    if settings.is_collector():
+        raise HTTPException(status_code=400, detail="Proxy not available in COLLECTOR mode")
+    return await proxy_request(f"api/{path}", request)
 
 
 if FRONTEND_DIR.exists():

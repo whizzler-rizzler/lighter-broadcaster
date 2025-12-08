@@ -1,9 +1,14 @@
 import os
+from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
 load_dotenv()
+
+class BroadcasterMode(str, Enum):
+    COLLECTOR = "COLLECTOR"
+    FRONTEND_ONLY = "FRONTEND_ONLY"
 
 class AccountConfig(BaseModel):
     name: str
@@ -41,6 +46,15 @@ class Settings(BaseModel):
     rate_limit: str = "100/minute"
     
     accounts: List[AccountConfig] = []
+    
+    mode: BroadcasterMode = BroadcasterMode.COLLECTOR
+    remote_api_base: Optional[str] = None
+    
+    def is_collector(self) -> bool:
+        return self.mode == BroadcasterMode.COLLECTOR
+    
+    def is_frontend_only(self) -> bool:
+        return self.mode == BroadcasterMode.FRONTEND_ONLY
 
 SUPPORTED_EXCHANGES = ["Lighter", "Extended", "Paradex", "Hyperliquid", "dYdX", "GMX"]
 
@@ -99,6 +113,14 @@ def load_accounts_from_env() -> List[AccountConfig]:
 
 def get_settings() -> Settings:
     accounts = load_accounts_from_env()
+    
+    mode_str = os.getenv("BROADCASTER_MODE", "COLLECTOR").upper()
+    try:
+        mode = BroadcasterMode(mode_str)
+    except ValueError:
+        print(f"Warning: Invalid BROADCASTER_MODE '{mode_str}', defaulting to COLLECTOR")
+        mode = BroadcasterMode.COLLECTOR
+    
     return Settings(
         lighter_base_url=os.getenv("LIGHTER_BASE_URL", "https://mainnet.zklighter.elliot.ai"),
         lighter_ws_url=os.getenv("LIGHTER_WS_URL", "wss://mainnet.zklighter.elliot.ai/stream"),
@@ -107,7 +129,9 @@ def get_settings() -> Settings:
         poll_interval=float(os.getenv("POLL_INTERVAL", "0.5")),
         cache_ttl=int(os.getenv("CACHE_TTL", "5")),
         rate_limit=os.getenv("RATE_LIMIT", "100/minute"),
-        accounts=accounts
+        accounts=accounts,
+        mode=mode,
+        remote_api_base=os.getenv("REMOTE_API_BASE")
     )
 
 settings = get_settings()
