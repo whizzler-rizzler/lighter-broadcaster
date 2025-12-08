@@ -61,7 +61,6 @@ class AccountRestConnection:
         self._last_failed_request = now
         self._consecutive_failures += 1
         self._last_error = error
-        self._request_timestamps.append(now)
         
         if self._consecutive_failures >= 3:
             self._connected = False

@@ -211,7 +211,7 @@ function App() {
                     </span>
                     <span className="ws-msg-age">{conn.success_rate}%</span>
                     <span className="ws-msgs">{conn.total_requests} req</span>
-                    <span className="ws-rpm">{conn.requests_per_minute}/min</span>
+                    <span className="ws-rpm">{conn.requests_per_minute} ok/min</span>
                     {conn.failed_requests > 0 && <span className="ws-error">{conn.failed_requests} fail</span>}
                   </div>
                 ))}
@@ -258,8 +258,8 @@ function App() {
             <span className="raw-ws-dot"></span>
             RAW WEBSOCKET DEBUG
             <button className="reconnect-btn" onClick={() => handleReconnectWs()}>Reconnect</button>
-            <span className={`ws-status-badge ${rawWsMessages?.connected_count === rawWsMessages?.total_connections ? 'connected' : ''}`}>
-              {rawWsMessages?.connected_count === rawWsMessages?.total_connections ? 'Polaczono' : 'Rozlaczono'}
+            <span className={`ws-status-badge ${rawWsMessages?.connected_count && rawWsMessages?.connected_count > 0 ? 'connected' : ''}`}>
+              {rawWsMessages?.connected_count || 0}/{rawWsMessages?.total_connections || 0} polaczonych
             </span>
             <span className="event-count">lacznie eventow: {rawWsMessages?.total_events || 0}</span>
           </h2>
