@@ -14,6 +14,10 @@ PING_INTERVAL = 30
 PONG_TIMEOUT = 60
 HEALTH_CHECK_INTERVAL = 10
 
+RETRY_PHASE_1_INTERVAL = 60
+RETRY_PHASE_1_MAX_ATTEMPTS = 5
+RETRY_PHASE_2_INTERVAL = 300
+
 class AccountWebSocketConnection:
     """Single WebSocket connection for one account through its proxy"""
     
@@ -31,6 +35,10 @@ class AccountWebSocketConnection:
         self._last_message_time: float = 0
         self._reconnect_count: int = 0
         self._total_messages: int = 0
+        self._retry_phase: int = 1
+        self._phase_attempts: int = 0
+        self._last_successful_connect: float = 0
+        self._connection_start_time: float = 0
     
     def add_callback(self, callback: Callable):
         if callback not in self._callbacks:
@@ -95,9 +103,30 @@ class AccountWebSocketConnection:
         self._last_pong_time = time.time()
         logger.debug(f"[{self.account.name}] Pong received")
     
+    def _get_retry_interval(self) -> float:
+        """Calculate retry interval based on current phase"""
+        if self._retry_phase == 1:
+            return RETRY_PHASE_1_INTERVAL
+        else:
+            return RETRY_PHASE_2_INTERVAL
+    
+    def _advance_retry_phase(self):
+        """Move to next retry phase after max attempts"""
+        self._phase_attempts += 1
+        if self._retry_phase == 1 and self._phase_attempts >= RETRY_PHASE_1_MAX_ATTEMPTS:
+            self._retry_phase = 2
+            self._phase_attempts = 0
+            logger.info(f"[{self.account.name}] Switching to phase 2 retry (every {RETRY_PHASE_2_INTERVAL}s)")
+    
+    def _reset_retry_state(self):
+        """Reset retry state after successful connection"""
+        self._retry_phase = 1
+        self._phase_attempts = 0
+    
     def get_health_status(self) -> Dict[str, Any]:
         """Return health status of this connection"""
         now = time.time()
+        uptime = now - self._connection_start_time if self._connected and self._connection_start_time > 0 else 0
         return {
             "account_id": self.account.account_index,
             "account_name": self.account.name,
@@ -106,12 +135,14 @@ class AccountWebSocketConnection:
             "last_pong_age": now - self._last_pong_time if self._last_pong_time > 0 else -1,
             "reconnect_count": self._reconnect_count,
             "total_messages": self._total_messages,
-            "has_proxy": bool(self.account.proxy_url)
+            "has_proxy": bool(self.account.proxy_url),
+            "retry_phase": self._retry_phase,
+            "phase_attempts": self._phase_attempts,
+            "uptime_seconds": round(uptime, 1) if uptime > 0 else 0,
+            "last_successful_connect": self._last_successful_connect
         }
     
     async def connect(self):
-        retry_count = 0
-        max_retries = 5
         account_id = self.account.account_index
         proxy_url = self.account.proxy_url
         
@@ -144,7 +175,9 @@ class AccountWebSocketConnection:
                     self._connected = True
                     self._last_pong_time = time.time()
                     self._last_message_time = time.time()
-                    retry_count = 0
+                    self._connection_start_time = time.time()
+                    self._last_successful_connect = time.time()
+                    self._reset_retry_state()
                     logger.info(f"[{self.account.name}] WebSocket connected! (reconnects: {self._reconnect_count})")
                     
                     self._ping_task = asyncio.create_task(self._ping_loop())
@@ -197,14 +230,14 @@ class AccountWebSocketConnection:
                             pass
                 
             except aiohttp.ClientError as e:
-                retry_count += 1
                 self._reconnect_count += 1
-                logger.warning(f"[{self.account.name}] WS connection error (attempt {retry_count}/{max_retries}): {e}")
+                self._advance_retry_phase()
+                logger.warning(f"[{self.account.name}] WS connection error (phase {self._retry_phase}, attempt {self._phase_attempts}): {e}")
                 self._connected = False
             except Exception as e:
-                retry_count += 1
                 self._reconnect_count += 1
-                logger.warning(f"[{self.account.name}] WS error (attempt {retry_count}/{max_retries}): {e}")
+                self._advance_retry_phase()
+                logger.warning(f"[{self.account.name}] WS error (phase {self._retry_phase}, attempt {self._phase_attempts}): {e}")
                 self._connected = False
             finally:
                 if self._ping_task:
@@ -218,14 +251,9 @@ class AccountWebSocketConnection:
                     await self._session.close()
                     self._session = None
             
-            if retry_count >= max_retries:
-                logger.warning(f"[{self.account.name}] WS max retries reached. Resetting counter and continuing...")
-                retry_count = 0
-                await asyncio.sleep(60)
-            
             if self.running:
-                wait_time = min(5 * (retry_count + 1), 30)
-                logger.info(f"[{self.account.name}] Reconnecting WS in {wait_time}s...")
+                wait_time = self._get_retry_interval()
+                logger.info(f"[{self.account.name}] Reconnecting WS in {wait_time}s (phase {self._retry_phase}, attempt {self._phase_attempts})...")
                 await asyncio.sleep(wait_time)
     
     async def start(self):
@@ -269,6 +297,7 @@ class LighterWebSocketClient:
         self._connections: Dict[int, AccountWebSocketConnection] = {}
         self._callbacks: List[Callable] = []
         self._signer_clients: Dict[str, lighter.SignerClient] = {}
+        self._start_time: float = 0
     
     def set_signer_clients(self, signer_clients: Dict[str, lighter.SignerClient]):
         self._signer_clients = signer_clients
@@ -288,6 +317,7 @@ class LighterWebSocketClient:
     async def start(self):
         """Start all WebSocket connections in parallel"""
         self.running = True
+        self._start_time = time.time()
         
         if not settings.accounts:
             logger.warning("No accounts configured, WebSocket client not started")
@@ -340,12 +370,17 @@ class LighterWebSocketClient:
             total_messages += health["total_messages"]
             total_reconnects += health["reconnect_count"]
         
+        now = time.time()
+        uptime = now - self._start_time if self._start_time > 0 else 0
+        
         return {
+            "type": "websocket",
             "total_connections": len(self._connections),
             "connected_count": connected_count,
             "disconnected_count": len(self._connections) - connected_count,
             "total_messages_received": total_messages,
             "total_reconnect_attempts": total_reconnects,
+            "uptime_seconds": round(uptime, 1),
             "connections": connections_health
         }
     
@@ -359,6 +394,7 @@ class LighterWebSocketClient:
         logger.info(f"Force reconnecting account {account_id}...")
         await conn.stop()
         conn.running = True
+        conn._reset_retry_state()
         conn._task = asyncio.create_task(conn.connect())
         return True
     

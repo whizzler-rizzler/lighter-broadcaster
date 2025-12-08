@@ -576,6 +576,61 @@ async def get_ws_health(request: Request):
     return ws_client.get_all_health_status()
 
 
+@app.get("/api/rest/health")
+@limiter.limit(settings.rate_limit)
+async def get_rest_health(request: Request):
+    """Get REST API connections health status (same format as WebSocket)"""
+    return lighter_client.get_all_health_status()
+
+
+@app.get("/api/connections/health")
+@limiter.limit(settings.rate_limit)
+async def get_all_connections_health(request: Request):
+    """Get combined health status for both WebSocket and REST API connections"""
+    ws_health = ws_client.get_all_health_status()
+    rest_health = lighter_client.get_all_health_status()
+    
+    return {
+        "websocket": ws_health,
+        "rest_api": rest_health,
+        "summary": {
+            "ws_connected": ws_health["connected_count"],
+            "ws_total": ws_health["total_connections"],
+            "rest_connected": rest_health["connected_count"],
+            "rest_total": rest_health["total_connections"],
+            "all_healthy": (
+                ws_health["connected_count"] == ws_health["total_connections"] and
+                rest_health["connected_count"] == rest_health["total_connections"]
+            )
+        }
+    }
+
+
+@app.post("/api/rest/reconnect")
+@limiter.limit("10/minute")
+async def force_rest_reconnect(request: Request, account_index: int = None):
+    """Force reset REST API connections retry state"""
+    if account_index is not None:
+        success = await lighter_client.force_reconnect(account_index)
+        return {"success": success, "account_index": account_index}
+    else:
+        count = await lighter_client.force_reconnect_all()
+        return {"success": True, "reset_count": count}
+
+
+@app.post("/api/connections/reconnect")
+@limiter.limit("5/minute")
+async def force_all_reconnect(request: Request):
+    """Force reconnect all WebSocket and reset all REST connections"""
+    ws_count = await ws_client.force_reconnect_all()
+    rest_count = await lighter_client.force_reconnect_all()
+    return {
+        "success": True,
+        "websocket_reconnected": ws_count,
+        "rest_reset": rest_count
+    }
+
+
 @app.post("/api/ws/reconnect")
 @limiter.limit("10/minute")
 async def force_ws_reconnect(request: Request, account_index: int = None):

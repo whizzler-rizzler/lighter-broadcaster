@@ -14,6 +14,102 @@ logger = logging.getLogger(__name__)
 
 SNAPSHOT_INTERVAL = 60
 
+RETRY_PHASE_1_INTERVAL = 60
+RETRY_PHASE_1_MAX_ATTEMPTS = 5
+RETRY_PHASE_2_INTERVAL = 300
+REQUEST_TIMEOUT = 30
+
+class AccountRestConnection:
+    """Tracks REST API connection state and retry logic for a single account"""
+    
+    def __init__(self, account_name: str, account_index: int):
+        self.account_name = account_name
+        self.account_index = account_index
+        self._connected = True
+        self._last_successful_request: float = 0
+        self._last_failed_request: float = 0
+        self._total_requests: int = 0
+        self._successful_requests: int = 0
+        self._failed_requests: int = 0
+        self._retry_phase: int = 1
+        self._phase_attempts: int = 0
+        self._connection_start_time: float = time.time()
+        self._consecutive_failures: int = 0
+        self._last_error: str = ""
+    
+    def record_success(self):
+        """Record a successful request"""
+        self._total_requests += 1
+        self._successful_requests += 1
+        self._last_successful_request = time.time()
+        self._connected = True
+        self._consecutive_failures = 0
+        self._reset_retry_state()
+    
+    def record_failure(self, error: str = ""):
+        """Record a failed request"""
+        self._total_requests += 1
+        self._failed_requests += 1
+        self._last_failed_request = time.time()
+        self._consecutive_failures += 1
+        self._last_error = error
+        
+        if self._consecutive_failures >= 3:
+            self._connected = False
+            self._advance_retry_phase()
+    
+    def _get_retry_interval(self) -> float:
+        """Calculate retry interval based on current phase"""
+        if self._retry_phase == 1:
+            return RETRY_PHASE_1_INTERVAL
+        else:
+            return RETRY_PHASE_2_INTERVAL
+    
+    def _advance_retry_phase(self):
+        """Move to next retry phase after max attempts"""
+        self._phase_attempts += 1
+        if self._retry_phase == 1 and self._phase_attempts >= RETRY_PHASE_1_MAX_ATTEMPTS:
+            self._retry_phase = 2
+            self._phase_attempts = 0
+            logger.info(f"[{self.account_name}] REST switching to phase 2 retry")
+    
+    def _reset_retry_state(self):
+        """Reset retry state after successful connection"""
+        self._retry_phase = 1
+        self._phase_attempts = 0
+    
+    def should_skip_request(self) -> bool:
+        """Check if we should skip this request based on retry interval"""
+        if self._connected:
+            return False
+        
+        time_since_failure = time.time() - self._last_failed_request
+        retry_interval = self._get_retry_interval()
+        
+        return time_since_failure < retry_interval
+    
+    def get_health_status(self) -> Dict[str, Any]:
+        """Return health status of this connection"""
+        now = time.time()
+        uptime = now - self._connection_start_time if self._connection_start_time > 0 else 0
+        return {
+            "account_id": self.account_index,
+            "account_name": self.account_name,
+            "connected": self._connected,
+            "last_success_age": now - self._last_successful_request if self._last_successful_request > 0 else -1,
+            "last_failure_age": now - self._last_failed_request if self._last_failed_request > 0 else -1,
+            "total_requests": self._total_requests,
+            "successful_requests": self._successful_requests,
+            "failed_requests": self._failed_requests,
+            "success_rate": round(self._successful_requests / self._total_requests * 100, 1) if self._total_requests > 0 else 100,
+            "retry_phase": self._retry_phase,
+            "phase_attempts": self._phase_attempts,
+            "consecutive_failures": self._consecutive_failures,
+            "uptime_seconds": round(uptime, 1),
+            "last_error": self._last_error[:100] if self._last_error else ""
+        }
+
+
 class LighterClient:
     def __init__(self):
         self.api_clients: Dict[str, lighter.ApiClient] = {}
@@ -28,6 +124,8 @@ class LighterClient:
         self._cached_orders: Dict[int, List[Dict[str, Any]]] = {}
         self._last_snapshot_times: Dict[int, float] = {}
         self._account_exchanges: Dict[str, str] = {}
+        self._rest_connections: Dict[int, AccountRestConnection] = {}
+        self._start_time: float = 0
     
     def _get_exchange_for_account(self, account_name: str) -> str:
         if account_name in self._account_exchanges:
@@ -41,7 +139,8 @@ class LighterClient:
         if account_name not in self._http_sessions or self._http_sessions[account_name].closed:
             proxy = self._account_proxies.get(account_name)
             connector = aiohttp.TCPConnector(limit=10)
-            self._http_sessions[account_name] = aiohttp.ClientSession(connector=connector)
+            timeout = aiohttp.ClientTimeout(total=REQUEST_TIMEOUT)
+            self._http_sessions[account_name] = aiohttp.ClientSession(connector=connector, timeout=timeout)
         return self._http_sessions[account_name]
     
     def _get_auth_token(self, account_name: str) -> Optional[str]:
@@ -60,7 +159,19 @@ class LighterClient:
             logger.error(f"Failed to create auth token for {account_name}: {e}")
             return None
     
+    def _get_rest_connection(self, account_name: str, account_index: int) -> AccountRestConnection:
+        """Get or create REST connection tracker for account"""
+        if account_index not in self._rest_connections:
+            self._rest_connections[account_index] = AccountRestConnection(account_name, account_index)
+        return self._rest_connections[account_index]
+    
     async def fetch_active_orders(self, account_name: str, account_index: int, market_id: int) -> List[Dict[str, Any]]:
+        rest_conn = self._get_rest_connection(account_name, account_index)
+        
+        if rest_conn.should_skip_request():
+            logger.debug(f"[{account_name}] Skipping orders request (in retry backoff)")
+            return self._cached_orders.get(account_index, [])
+        
         try:
             auth_token = self._get_auth_token(account_name)
             if not auth_token:
@@ -77,17 +188,25 @@ class LighterClient:
                 if resp.status == 200:
                     data = await resp.json()
                     orders = data.get("orders", [])
+                    rest_conn.record_success()
                     if orders:
                         logger.debug(f"Fetched {len(orders)} orders for {account_name} market {market_id}")
                     return orders
                 elif resp.status == 429:
+                    rest_conn.record_failure("Rate limited (429)")
                     logger.warning(f"Rate limited (429) for account {account_name} market {market_id}")
                     return []
                 else:
                     body = await resp.text()
+                    rest_conn.record_failure(f"HTTP {resp.status}")
                     logger.warning(f"Active orders request failed for {account_name} market {market_id}: {resp.status} - {body[:200]}")
                 return []
+        except asyncio.TimeoutError:
+            rest_conn.record_failure("Timeout")
+            logger.error(f"Timeout fetching active orders for {account_index}")
+            return []
         except Exception as e:
+            rest_conn.record_failure(str(e))
             logger.error(f"Error fetching active orders for {account_index}: {e}")
             return []
     
@@ -116,6 +235,7 @@ class LighterClient:
         return all_orders
     
     async def initialize(self, accounts: List[AccountConfig]):
+        self._start_time = time.time()
         for account in accounts:
             try:
                 config = Configuration()
@@ -144,6 +264,8 @@ class LighterClient:
                             signer.api_client.rest_client.proxy = account.proxy_url
                     self.signer_clients[account.name] = signer
                 
+                self._rest_connections[account.account_index] = AccountRestConnection(account.name, account.account_index)
+                
                 logger.info(f"Initialized client for account: {account.name} (index: {account.account_index})")
             except Exception as e:
                 logger.error(f"Failed to initialize client for {account.name}: {e}")
@@ -161,6 +283,13 @@ class LighterClient:
             return account_data
     
     async def fetch_account_data(self, account_name: str, account_index: int) -> Optional[Dict[str, Any]]:
+        rest_conn = self._get_rest_connection(account_name, account_index)
+        
+        if rest_conn.should_skip_request():
+            logger.debug(f"[{account_name}] Skipping account request (in retry backoff)")
+            cached = await cache.get(f"account:{account_index}")
+            return cached.get("data", cached) if cached else None
+        
         try:
             account_api = self.account_apis.get(account_name)
             if not account_api:
@@ -170,6 +299,8 @@ class LighterClient:
             account_data = await account_api.account(by="index", value=str(account_index))
             latency_ms = (time.time() - start_time) * 1000
             latency_tracker.record_rest_poll(latency_ms)
+            
+            rest_conn.record_success()
             
             serialized_data = self._serialize_account_data(account_data)
             
@@ -211,7 +342,12 @@ class LighterClient:
             
             return data
             
+        except asyncio.TimeoutError:
+            rest_conn.record_failure("Timeout")
+            logger.error(f"Timeout fetching account {account_index}")
+            return None
         except Exception as e:
+            rest_conn.record_failure(str(e))
             logger.error(f"Error fetching account {account_index}: {e}")
             return None
     
@@ -289,5 +425,57 @@ class LighterClient:
         self.api_clients.clear()
         self.signer_clients.clear()
         self.account_apis.clear()
+    
+    def get_all_health_status(self) -> Dict[str, Any]:
+        """Get health status for all REST connections (same format as WebSocket)"""
+        connections_health = []
+        connected_count = 0
+        total_requests = 0
+        total_failures = 0
+        
+        for conn in self._rest_connections.values():
+            health = conn.get_health_status()
+            connections_health.append(health)
+            if health["connected"]:
+                connected_count += 1
+            total_requests += health["total_requests"]
+            total_failures += health["failed_requests"]
+        
+        now = time.time()
+        uptime = now - self._start_time if self._start_time > 0 else 0
+        
+        return {
+            "type": "rest_api",
+            "total_connections": len(self._rest_connections),
+            "connected_count": connected_count,
+            "disconnected_count": len(self._rest_connections) - connected_count,
+            "total_requests": total_requests,
+            "total_failures": total_failures,
+            "success_rate": round((total_requests - total_failures) / total_requests * 100, 1) if total_requests > 0 else 100,
+            "uptime_seconds": round(uptime, 1),
+            "polling": self.running,
+            "poll_interval": settings.poll_interval,
+            "connections": connections_health
+        }
+    
+    async def force_reconnect(self, account_index: int) -> bool:
+        """Force reset retry state for a specific account"""
+        if account_index in self._rest_connections:
+            conn = self._rest_connections[account_index]
+            conn._reset_retry_state()
+            conn._connected = True
+            conn._consecutive_failures = 0
+            logger.info(f"Force reset REST connection for account {account_index}")
+            return True
+        return False
+    
+    async def force_reconnect_all(self) -> int:
+        """Force reset retry state for all accounts"""
+        count = 0
+        for account_index in list(self._rest_connections.keys()):
+            if await self.force_reconnect(account_index):
+                count += 1
+        logger.info(f"Force reset {count} REST connections")
+        return count
 
 lighter_client = LighterClient()

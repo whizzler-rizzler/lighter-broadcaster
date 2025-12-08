@@ -14,10 +14,10 @@ Backend/
   api.py              - FastAPI application with REST endpoints and WebSocket server
   cache.py            - In-memory caching layer with TTL support
   config.py           - Configuration and environment variable loading
-  lighter_client.py   - Lighter SDK wrapper for REST API polling
+  lighter_client.py   - Lighter SDK wrapper for REST API polling with retry logic
   latency.py          - Latency tracking utilities
   supabase_client.py  - Supabase integration for data persistence
-  websocket_client.py - WebSocket client for real-time Lighter updates
+  websocket_client.py - WebSocket client for real-time Lighter updates with reconnect
   websocket_server.py - WebSocket server for broadcasting to clients
 mFrontend/            - React frontend (Vite)
 main.py               - Application entry point
@@ -37,16 +37,57 @@ supabase_schema.sql   - SQL schema for Supabase tables
 - **Supabase Persistence**: Optional data persistence to Supabase (snapshots, positions, orders, trades)
 - **React Frontend**: Modern dashboard built with Vite/React
 
+## Reconnect & Retry Logic
+
+Both WebSocket and REST API clients use a multi-phase retry strategy:
+
+- **Ping/heartbeat**: WebSocket sends ping every 30 seconds
+- **Phase 1**: Retry every 60 seconds (up to 5 attempts)
+- **Phase 2**: After 5 failures, retry every 5 minutes
+- **No limit**: Retries continue indefinitely until success
+- **Auto-reset**: After successful connection, retry state resets to Phase 1
+
+Health status includes:
+- Connection state (connected/disconnected)
+- Retry phase and attempt count
+- Uptime, message counts, error details
+- Success rate for REST API
+
 ## API Endpoints
 
+### Core Endpoints
 - `GET /` - React dashboard
 - `GET /health` - Health check
 - `GET /api/status` - Service status and metrics
+- `GET /api/latency` - Latency metrics
+- `GET /api/portfolio` - Aggregated portfolio data
+
+### Account Data
 - `GET /api/accounts` - All cached accounts
 - `GET /api/accounts/{index}` - Specific account data
-- `GET /api/history/accounts/{index}` - Account historical snapshots (Supabase)
-- `GET /api/history/trades/{index}` - Trade history (Supabase)
+
+### WebSocket Data
+- `GET /api/ws/positions` - All positions from WebSocket
+- `GET /api/ws/positions/{index}` - Positions for specific account
+- `GET /api/ws/orders` - All orders from WebSocket
+- `GET /api/ws/orders/{index}` - Orders for specific account
+- `GET /api/ws/trades` - All trades from WebSocket
+- `GET /api/ws/trades/{index}` - Trades for specific account
+
+### Connection Health
+- `GET /api/ws/health` - WebSocket connections health status
+- `GET /api/rest/health` - REST API connections health status
+- `GET /api/connections/health` - Combined health (WebSocket + REST)
+- `POST /api/ws/reconnect` - Force reconnect WebSocket (optional: ?account_index=X)
+- `POST /api/rest/reconnect` - Force reset REST retry (optional: ?account_index=X)
+- `POST /api/connections/reconnect` - Force reconnect all connections
+
+### Historical Data (Supabase)
+- `GET /api/history/accounts/{index}` - Account historical snapshots
+- `GET /api/history/trades/{index}` - Trade history
 - `GET /api/supabase/status` - Supabase connection status
+
+### WebSocket
 - `WS /ws` - WebSocket for real-time updates
 
 ## Configuration
