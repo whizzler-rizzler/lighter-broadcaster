@@ -367,6 +367,16 @@ async def get_portfolio():
             total_active_orders += len(active_orders)
             total_trades += len(all_trades)
     
+    def get_account_sort_key(account):
+        name = account.get("name", "")
+        import re
+        match = re.search(r'_(\d+)_', name)
+        if match:
+            return int(match.group(1))
+        return 999
+    
+    accounts_list.sort(key=get_account_sort_key)
+    
     return {
         "accounts": accounts_list,
         "aggregated": {
