@@ -14,6 +14,7 @@ Backend/
   api.py              - FastAPI application with REST endpoints and WebSocket server
   cache.py            - In-memory caching layer with TTL support
   config.py           - Configuration and environment variable loading
+  error_collector.py  - Centralized error tracking and logging
   lighter_client.py   - Lighter SDK wrapper for REST API polling with retry logic
   latency.py          - Latency tracking utilities
   supabase_client.py  - Supabase integration for data persistence
@@ -81,6 +82,10 @@ Health status includes:
 - `POST /api/ws/reconnect` - Force reconnect WebSocket (optional: ?account_index=X)
 - `POST /api/rest/reconnect` - Force reset REST retry (optional: ?account_index=X)
 - `POST /api/connections/reconnect` - Force reconnect all connections
+
+### Error Logging
+- `GET /api/errors` - Recent errors with summary (limit param optional)
+- `POST /api/errors/clear` - Clear error log
 
 ### Historical Data (Supabase)
 - `GET /api/history/accounts/{index}` - Account historical snapshots
