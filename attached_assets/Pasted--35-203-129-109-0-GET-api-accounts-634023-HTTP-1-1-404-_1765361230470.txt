@@ -1,0 +1,98 @@
+    35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="fb004015-2dc7-4dad" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="74b715d5-f06f-4e76" responseTimeMS=7 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="e64111c3-af2b-4026" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="a6176350-9249-466a" responseTimeMS=4 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     10.209.25.211:41696 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.209.25.211:41694 - "GET /health HTTP/1.1" 200 OK
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="a98a8e82-b2d6-4567" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="22cbab91-c21f-4d14" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="e0e81637-38ac-4ee1" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="493cebd9-c0ef-4301" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="47b233fa-1aa7-4059" responseTimeMS=5 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="922d704b-7a7b-4c28" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="4abfdb8c-5636-40c3" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="433fc2eb-1e7c-4f0b" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="c37ca856-3c99-40d4" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     10.209.25.211:57018 - "GET /health HTTP/1.1" 200 OK
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="ce229aa7-db76-400e" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="67470d58-360e-4970" responseTimeMS=4 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="d273c490-0b00-45c0" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="aa64d5ce-5287-4185" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="46809c6d-aeb6-43b2" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="839a70ad-926c-4bcc" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="f4fb8e07-aed7-439f" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="5814a939-7446-4001" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     10.209.25.211:57034 - "GET /health HTTP/1.1" 200 OK
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="77dcfd0b-4191-41d3" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="36143a6a-ba2d-4d83" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="e38dbff6-754c-4761" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="1c598f91-7bcd-48f9" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:Backend.websocket_client:[Lighter_10_0f08fC] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_6_05A739] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_3_74eF87] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_4_1112E1] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_9_1A04d3] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:Backend.websocket_client:[Lighter_7_1eE2a4] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_1_aE42d3] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_5_fe69Ac] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_8_7B8f14] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_7_1eE2a4] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_7_1eE2a4] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_7_1eE2a4] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_1_aE42d3] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_1_aE42d3] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_1_aE42d3] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_5_fe69Ac] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_5_fe69Ac] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_5_fe69Ac] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_3_74eF87] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_3_74eF87] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_3_74eF87] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_9_1A04d3] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_9_1A04d3] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_9_1A04d3] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_10_0f08fC] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_10_0f08fC] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_10_0f08fC] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_6_05A739] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_6_05A739] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_6_05A739] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_8_7B8f14] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_8_7B8f14] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_8_7B8f14] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:Backend.websocket_client:[Lighter_4_1112E1] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_4_1112E1] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_4_1112E1] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:Backend.websocket_client:[Lighter_2_61658C] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+INFO:Backend.websocket_client:[Lighter_2_61658C] Switching to phase 2 retry (every 300s)
+WARNING:Backend.websocket_client:[Lighter_2_61658C] WS error (phase 2, attempt 0): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_2_61658C] Reconnecting WS in 300s (phase 2, attempt 0)...
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
