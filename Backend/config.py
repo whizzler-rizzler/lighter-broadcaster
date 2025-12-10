@@ -20,7 +20,7 @@ class AccountConfig(BaseModel):
     exchange: str = "lighter"
 
 def convert_proxy_format(raw_proxy: str) -> str:
-    """Convert ip:port:user:pass to http://user:pass@ip:port format"""
+    """Convert ip:port:user:pass to http://user-staticresidential:pass@ip:port format"""
     if not raw_proxy:
         return None
     if raw_proxy.startswith("http://") or raw_proxy.startswith("https://"):
@@ -28,6 +28,8 @@ def convert_proxy_format(raw_proxy: str) -> str:
     parts = raw_proxy.split(":")
     if len(parts) == 4:
         ip, port, user, password = parts
+        if "-staticresidential" not in user:
+            user = f"{user}-staticresidential"
         return f"http://{user}:{password}@{ip}:{port}"
     elif len(parts) == 2:
         return f"http://{raw_proxy}"
