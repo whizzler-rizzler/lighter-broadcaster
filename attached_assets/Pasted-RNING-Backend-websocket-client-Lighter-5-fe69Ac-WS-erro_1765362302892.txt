@@ -1,0 +1,42 @@
+RNING:Backend.websocket_client:[Lighter_5_fe69Ac] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_5_fe69Ac] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_1_aE42d3] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_1_aE42d3] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_6_05A739] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_6_05A739] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_7_1eE2a4] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_7_1eE2a4] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_3_74eF87] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_3_74eF87] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_4_1112E1] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_4_1112E1] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_8_7B8f14] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_8_7B8f14] Reconnecting WS in 60s (phase 1, attempt 2)...
+WARNING:Backend.websocket_client:[Lighter_9_1A04d3] WS error (phase 1, attempt 2): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_9_1A04d3] Reconnecting WS in 60s (phase 1, attempt 2)...
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="0f9306bf-f70f-4fc7" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="59292423-e298-4e00" responseTimeMS=4 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="4ff44c11-27d6-4dac" responseTimeMS=3 responseBytes=227 userAgent="python-requests/2.31.0"
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     10.209.25.5:59952 - "GET /health HTTP/1.1" 200 OK
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="649f5383-c585-4ab4" responseTimeMS=173 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="d7f5cf13-4313-4641" responseTimeMS=4 responseBytes=227 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="3e27ca7d-721b-4536" responseTimeMS=2 responseBytes=227 userAgent="python-requests/2.31.0"
+ERROR:Backend.lighter_client:Error fetching account 634023: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.27.111.250:5457'
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+ERROR:Backend.lighter_client:Error fetching account 363202: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.27.111.194:5401'
+ERROR:Backend.lighter_client:Error fetching account 634023: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.27.111.250:5457'
+ERROR:Backend.lighter_client:Error fetching account 191948: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.89.25:5231'
+ERROR:Backend.lighter_client:Error fetching account 637416: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.89.153:5359'
+ERROR:Backend.lighter_client:Error fetching account 382129: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.89.66:5272'
+ERROR:Backend.lighter_client:Error fetching account 637317: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.18.95:5802'
+ERROR:Backend.lighter_client:Error fetching account 397776: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.89.253:5459'
+ERROR:Backend.lighter_client:Error fetching account 497888: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.27.111.15:5222'
+ERROR:Backend.lighter_client:Error fetching account 199374: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.89.148:5354'
+ERROR:Backend.lighter_client:Error fetching account 199339: 407, message='Proxy Authentication Required', url='http://ilbefxoi:mhaamz128dg0@82.24.54.64:5770'
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
+INFO:     10.209.17.245:34258 - "GET /health HTTP/1.1" 200 OK
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 404 Not Found
