@@ -1,0 +1,84 @@
+NG:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="153de50f-13bc-4694" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="ac6d3f1e-bcfc-419b" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="df0b2517-1ff0-4a04" responseTimeMS=4 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="f717fe54-6ec9-4b5f" responseTimeMS=4 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+INFO:     10.209.24.96:51662 - "GET /health HTTP/1.1" 200 OK
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="37aefd18-a229-4236" responseTimeMS=4 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="87ac32fc-f865-4d99" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="9d155316-2391-42ea" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="10ed3d10-bd6d-4546" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="f04aae8e-2a4e-4bdb" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="bb16d34a-6974-4123" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="64a388c3-47ef-420e" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="99726225-5766-45f8" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="ebcfb8d0-0eff-47d7" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+INFO:Backend.websocket_client:[Lighter_2_61658C] Connecting WS via proxy: http://ilbefxoi:mhaamz128dg0@1...
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:Backend.websocket_client:[Lighter_2_61658C] WS error (phase 2, attempt 111): 407 Proxy Authentication Required
+INFO:Backend.websocket_client:[Lighter_2_61658C] Reconnecting WS in 300s (phase 2, attempt 111)...
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="86a925c8-260f-4007" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="e04f18f9-6614-4cf8" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="f0548776-ee68-41c5" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="d982a131-63d5-425f" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="0f891de1-404e-4b27" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="0a466da6-b487-4118" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="7e7f641c-b2f0-495d" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     10.209.24.96:41006 - "GET /health HTTP/1.1" 200 OK
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="72292ea4-3aa0-4ada" responseTimeMS=3 responseBytes=251 userAgent="python-requests/2.31.0"
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="8d140619-3803-4b76" responseTimeMS=2 responseBytes=251 userAgent="python-requests/2.31.0"
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+WARNING:slowapi:ratelimit 100 per 1 minute (35.203.129.109) exceeded at endpoint: /api/accounts/634023
+INFO:     35.203.129.109:0 - "GET /api/accounts/634023 HTTP/1.1" 429 Too Many Requests
+     [GET]lighter-broadcaster.onrender.com/api/accounts/634023clientIP="35.203.129.109" requestID="b8758c9b-6973-4da0" responseTimeMS=4 responseBytes=251 userAgent="python-requests/2.31.0"

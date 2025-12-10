@@ -43,7 +43,7 @@ class Settings(BaseModel):
     poll_interval: float = 1.0
     cache_ttl: int = 5
     
-    rate_limit: str = "100/minute"
+    rate_limit: str = "1000/minute"
     
     accounts: List[AccountConfig] = []
     
@@ -128,7 +128,7 @@ def get_settings() -> Settings:
         port=int(os.getenv("PORT", "5000")),
         poll_interval=float(os.getenv("POLL_INTERVAL", "0.5")),
         cache_ttl=int(os.getenv("CACHE_TTL", "5")),
-        rate_limit=os.getenv("RATE_LIMIT", "100/minute"),
+        rate_limit=os.getenv("RATE_LIMIT", "1000/minute"),
         accounts=accounts,
         mode=mode,
         remote_api_base=os.getenv("REMOTE_API_BASE")
